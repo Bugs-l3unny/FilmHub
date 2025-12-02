@@ -52,14 +52,14 @@ fun MovieDetailScreen(
     var selectedTrailer by remember { mutableStateOf<com.example.filmhub.data.model.VideoTrailer?>(null) }
 
     LaunchedEffect(movie.id) {
+        viewModel.loadMovieDetails(movie, currentUser?.uid)
+        viewModel.startReviewsListener(movie.id)
         currentUser?.uid?.let { userId ->
-            viewModel.loadMovieDetails(movie, userId)
-            viewModel.startReviewsListener(movie.id)
             listViewModel.checkMovieStatus(userId, movie.id)
             listViewModel.startRealtime(userId)
-            // HU42-EP22: Cargar trailers
-            adminViewModel.loadMovieTrailers(movie.id)
         }
+        // HU42-EP22: Cargar trailers
+        adminViewModel.loadMovieTrailers(movie.id)
     }
 
     val snackbarHostState = remember { androidx.compose.material3.SnackbarHostState() }
@@ -78,7 +78,7 @@ fun MovieDetailScreen(
         snackbarHost = { androidx.compose.material3.SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             TopAppBar(
-                title = { Text(movie.title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                title = { Text((movieDetailState.movie?.title ?: movie.title), maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.Filled.ArrowBack, "Volver")
@@ -88,7 +88,7 @@ fun MovieDetailScreen(
                     // Botón de compartir
                     IconButton(
                         onClick = {
-                            ShareUtils.shareMovie(context, movie.title, movie.id)
+                            ShareUtils.shareMovie(context, (movieDetailState.movie?.title ?: movie.title), movie.id)
                         }
                     ) {
                         Icon(Icons.Filled.Share, "Compartir")
@@ -110,9 +110,13 @@ fun MovieDetailScreen(
         ) {
             // Backdrop o poster grande
             AsyncImage(
-                model = ApiConstants.getBackdropUrl(movie.backdropPath)
-                    ?: ApiConstants.getPosterUrl(movie.posterPath),
-                contentDescription = movie.title,
+                model = (
+                    movieDetailState.movie?.let { m ->
+                        ApiConstants.getBackdropUrl(m.backdropPath) ?: ApiConstants.getPosterUrl(m.posterPath)
+                    }
+                    ?: (ApiConstants.getBackdropUrl(movie.backdropPath) ?: ApiConstants.getPosterUrl(movie.posterPath))
+                ),
+                contentDescription = (movieDetailState.movie?.title ?: movie.title),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(250.dp),
@@ -122,13 +126,14 @@ fun MovieDetailScreen(
             Column(modifier = Modifier.padding(16.dp)) {
                 // Título y año
                 Text(
-                    text = movie.title,
+                    text = (movieDetailState.movie?.title ?: movie.title),
                     style = MaterialTheme.typography.headlineMedium
                 )
 
-                if (movie.releaseDate.isNotEmpty()) {
+                val rel = movieDetailState.movie?.releaseDate ?: movie.releaseDate
+                if (rel.isNotEmpty()) {
                     Text(
-                        text = movie.releaseDate.take(4),
+                        text = rel.take(4),
                         style = MaterialTheme.typography.titleSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -224,7 +229,7 @@ fun MovieDetailScreen(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = String.format("%.1f", movie.voteAverage),
+                        text = String.format("%.1f", (movieDetailState.movie?.voteAverage ?: movie.voteAverage)),
                         style = MaterialTheme.typography.headlineSmall,
                         color = MaterialTheme.colorScheme.primary
                     )
@@ -235,7 +240,7 @@ fun MovieDetailScreen(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "(${movie.voteCount} votos)",
+                        text = "(${(movieDetailState.movie?.voteCount ?: movie.voteCount)} votos)",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -317,7 +322,7 @@ fun MovieDetailScreen(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = movie.overview.ifEmpty { "No hay sinopsis disponible" },
+                    text = (movieDetailState.movie?.overview ?: movie.overview).ifEmpty { "No hay sinopsis disponible" },
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

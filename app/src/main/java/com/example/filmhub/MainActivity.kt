@@ -1,6 +1,9 @@
 package com.example.filmhub
 
 import android.os.Bundle
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -16,7 +19,10 @@ import com.example.filmhub.data.ThemeManager
 import com.example.filmhub.data.repository.AuthRepository
 import com.example.filmhub.navigation.NavigationGraph
 import com.example.filmhub.navigation.Screen
+import com.example.filmhub.notifications.MoviesNotifyWorker
 import com.example.filmhub.ui.theme.FilmHubTheme
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 
 class MainActivity : ComponentActivity() {
 
@@ -30,6 +36,13 @@ class MainActivity : ComponentActivity() {
         themeManager = ThemeManager(this)
         authRepository = AuthRepository()
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val granted = ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+            if (!granted) {
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1001)
+            }
+        }
+
         setContent {
             val isDarkTheme by themeManager.isDarkTheme.collectAsState(initial = false)
 
@@ -40,9 +53,7 @@ class MainActivity : ComponentActivity() {
                 ) {
                     val navController = rememberNavController()
 
-                    // Soporte invitado: inicia en la lista incluso sin sesión; las acciones protegidas pedirán login
                     val startDestination = Screen.MovieList.route
-
                     NavigationGraph(
                         navController = navController,
                         startDestination = startDestination
@@ -57,5 +68,9 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+
+        MoviesNotifyWorker.schedule(this)
+
+        MoviesNotifyWorker.triggerOnce(this)
     }
 }

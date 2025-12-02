@@ -140,12 +140,16 @@ class MovieViewModel(
     }
 
     // Cargar detalles de película y sus reseñas
-    fun loadMovieDetails(movie: Movie, userId: String) {
+    fun loadMovieDetails(movie: Movie, userId: String?) {
         viewModelScope.launch {
             _movieDetailState.value = _movieDetailState.value.copy(
                 isLoading = true,
                 movie = movie
             )
+
+            // Cargar detalles completos desde TMDb
+            val movieResult = repository.getMovie(movie.id)
+            val fullMovie = movieResult.getOrNull() ?: movie
 
             // Cargar reseñas
             val reviewsResult = repository.getMovieReviews(movie.id)
@@ -156,11 +160,13 @@ class MovieViewModel(
             val stats = statsResult.getOrNull()
 
             // Cargar calificación del usuario
-            val ratingResult = repository.getUserRating(movie.id, userId)
-            val userRating = ratingResult.getOrNull()
+            val userRating = if (!userId.isNullOrBlank()) {
+                repository.getUserRating(movie.id, userId).getOrNull()
+            } else null
 
             _movieDetailState.value = _movieDetailState.value.copy(
                 isLoading = false,
+                movie = fullMovie,
                 reviews = reviews,
                 stats = stats,
                 userRating = userRating

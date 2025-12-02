@@ -101,13 +101,17 @@ fun NavigationGraph(
             val movieId = backStackEntry.arguments?.getString("movieId")?.toIntOrNull()
             val movie = navController.previousBackStackEntry?.savedStateHandle?.get<com.example.filmhub.data.model.Movie>("movie")
 
-            if (movie != null) {
+            val toShow = movie ?: (if (movieId != null) com.example.filmhub.data.model.Movie(id = movieId) else null)
+            if (toShow != null) {
                 MovieDetailScreen(
-                    movie = movie,
+                    movie = toShow,
                     onNavigateBack = {
                         navController.popBackStack()
                     }
                 )
+            } else {
+                // Si no hay datos, regresar para evitar pantalla en negro
+                navController.popBackStack()
             }
         }
 
