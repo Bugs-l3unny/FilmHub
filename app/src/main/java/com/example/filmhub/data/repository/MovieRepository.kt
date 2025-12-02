@@ -277,4 +277,20 @@ class MovieRepository {
             Result.failure(e)
         }
     }
+
+    // HU42-EP22: Obtener videos/trailers de una película (YouTube Trailer)
+    suspend fun getMovieTrailers(movieId: Int): Result<List<VideoTrailer>> {
+        return try {
+            val response = api.getMovieVideos(movieId)
+            if (response.isSuccessful && response.body() != null) {
+                val trailers = response.body()!!.results
+                    .filter { it.site.equals("YouTube", true) && it.type.equals("Trailer", true) }
+                Result.success(trailers)
+            } else {
+                Result.failure(Exception("Error al cargar trailers"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }

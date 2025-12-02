@@ -123,7 +123,7 @@ fun MovieDetailScreen(
                 contentScale = ContentScale.Crop
             )
 
-            Column(modifier = Modifier.padding(16.dp)) {
+                Column(modifier = Modifier.padding(16.dp)) {
                 // Título y año
                 Text(
                     text = (movieDetailState.movie?.title ?: movie.title),
@@ -140,6 +140,19 @@ fun MovieDetailScreen(
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
+
+                if (movieDetailState.trailers.isNotEmpty()) {
+                    Button(
+                        onClick = { viewModel.playTrailer(context, movieDetailState.trailers.firstOrNull()) },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(Icons.Filled.PlayArrow, "Ver trailer")
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Ver trailer")
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
 
             // Botones de acción rápida
             Row(

@@ -25,6 +25,7 @@ data class MovieDetailState(
     val reviews: List<Review> = emptyList(),
     val stats: MovieStats? = null,
     val userRating: Rating? = null,
+    val trailers: List<VideoTrailer> = emptyList(),
     val errorMessage: String? = null,
     val successMessage: String? = null
 )
@@ -164,12 +165,16 @@ class MovieViewModel(
                 repository.getUserRating(movie.id, userId).getOrNull()
             } else null
 
+            // Cargar trailers
+            val trailers = repository.getMovieTrailers(movie.id).getOrNull() ?: emptyList()
+
             _movieDetailState.value = _movieDetailState.value.copy(
                 isLoading = false,
                 movie = fullMovie,
                 reviews = reviews,
                 stats = stats,
-                userRating = userRating
+                userRating = userRating,
+                trailers = trailers
             )
         }
     }
@@ -179,6 +184,17 @@ class MovieViewModel(
             repository.reviewsListener(movieId).collect { reviews ->
                 _movieDetailState.value = _movieDetailState.value.copy(reviews = reviews)
             }
+        }
+    }
+
+    fun playTrailer(context: android.content.Context, trailer: VideoTrailer?) {
+        if (trailer == null) return
+        val appIntent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse("vnd.youtube:" + trailer.key))
+        val webIntent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse("https://www.youtube.com/watch?v=" + trailer.key))
+        try {
+            context.startActivity(appIntent)
+        } catch (_: Exception) {
+            context.startActivity(webIntent)
         }
     }
 
