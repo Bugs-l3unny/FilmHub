@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">FilmHub</string>
+
+    <!-- Auth -->
+    <string name="login">Iniciar sesión</string>
+    <string name="register">Registrarse</string>
+    <string name="email">Correo electrónico</string>
+    <string name="password">Contraseña</string>
+    <string name="forgot_password">¿Olvidaste tu contraseña?</string>
+
+    <!-- Profile -->
+    <string name="profile">Perfil</string>
+    <string name="logout">Cerrar sesión</string>
+    <string name="edit_profile">Editar perfil</string>
+    <string name="change_password">Cambiar contraseña</string>
+
+    <!-- Movies -->
+    <string name="movies">Películas</string>
+    <string name="search_movies">Buscar películas</string>
+
+    <!-- General -->
+    <string name="save">Guardar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="accept">Aceptar</string>
+    <string name="error">Error</string>
+    <string name="success">Éxito</string>
+</resources>

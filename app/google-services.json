@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "734446959544",
+    "project_id": "filmhub-cb2f7",
+    "storage_bucket": "filmhub-cb2f7.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:734446959544:android:4cc05fd86733af13dfad4d",
+        "android_client_info": {
+          "package_name": "com.example.filmhub"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAHJwP5-u77KW1_l8XQpIM-yNT6_cTg64M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
